@@ -4,16 +4,6 @@ import { dataContext } from '../App'
 import { Form, Spinner } from 'react-bootstrap'
 
 export default function Barpage() {
-    /*const [data, setData] = useState<Record<string, Record<string, number>>>({})
-
-    const address =
-        import.meta.env.MODE == 'production' ? '' : 'http://localhost:49072'
-
-    useInterval(() => {
-        fetch(`${address}/all`)
-            .then(res => res.json())
-            .then(data => setData(data))
-    }, 1000)*/
     const [dayCount, setDayCount] = useState(7)
     const data = useContext(dataContext)
 

@@ -31,10 +31,6 @@ export default function BarComponent({
     }
 
     const barData = useMemo(() => {
-        /*Object.keys(data).sort((a, b) => {
-            const day1 = a.split('-')
-        })*/
-
         let selectedDays: Record<string, Record<string, number>> = {}
         let i = 0
         for (const day of Object.keys(data).reverse()) {
