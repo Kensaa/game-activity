@@ -6,8 +6,6 @@ import * as path from 'path'
 import * as express from 'express'
 import * as cors from 'cors'
 import SysTray from 'systray2'
-import { showConsole, hideConsole } from 'node-hide-console-window'
-hideConsole()
 const PORT = 49072
 
 const { width, height } = robotjs.getScreenSize()
@@ -46,7 +44,7 @@ const img = path.join(
 )
 
 const urlItem = {
-    title: 'open webpage',
+    title: 'Open Webpage',
     tooltip: 'open the webpage to see your game activity',
     checked: false,
     enabled: true,
@@ -63,7 +61,7 @@ const urlItem = {
 }
 
 const exitItem = {
-    title: 'exit',
+    title: 'Exit',
     tooltip: 'close the program',
     checked: false,
     enabled: true,
@@ -96,28 +94,7 @@ app.use(
     })
 )
 
-app.listen(PORT, () => console.log(`listening on port ${PORT}`))
-
-app.get('/files', (req, res) => {
-    res.json(fs.readdirSync(folder).map(e => path.parse(e).name))
-})
-
-app.get('/file/:file', (req, res) => {
-    const { file } = req.params
-    if (!file) return res.sendStatus(404)
-    const filepath = path.join(
-        folder,
-        `${file}${file.endsWith('.json') ? '' : '.json'}`
-    )
-    if (!fs.existsSync(filepath)) return res.sendStatus(404)
-    let data = undefined
-    try {
-        data = JSON.parse(fs.readFileSync(filepath, 'utf-8'))
-    } catch {
-        return res.sendStatus(500)
-    }
-    res.json(data)
-})
+app.listen(PORT, 'localhost', () => console.log(`listening on port ${PORT}`))
 
 app.get('/all', (req, res) => {
     const files = fs.readdirSync(folder)

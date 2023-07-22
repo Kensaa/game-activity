@@ -1602,11 +1602,6 @@ node-gyp@^9.3.0:
     tar "^6.1.2"
     which "^2.0.2"
 
-node-hide-console-window@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/node-hide-console-window/-/node-hide-console-window-2.1.1.tgz#e6c20e6ec4d09745e6f275681a2c02bbebbe4421"
-  integrity sha512-6knDFNCPJhgbXF10xJWVJb4COe6pvr4pI6wX4B3g9owErZD7oltrqiZS6wtoAH81dZUZFe6ys+kZDpcsH9nfqw==
-
 noop-logger@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/noop-logger/-/noop-logger-0.1.1.tgz#94a2b1633c4f1317553007d8966fd0e841b6a4c2"
