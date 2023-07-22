@@ -1,12 +1,12 @@
 {
     "name": "game-activity",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "",
     "main": "dist/main.js",
     "bin": "dist/main.js",
     "scripts": {
         "start": "tsc && node .",
-        "build": "rm -rf public && mkdir public && cd ../ui && rm -rf dist/ && yarn && yarn build && cp -r dist/* ../background/public && cd ../background && rm -rf build && yarn && tsc && pkg . && create-nodew-exe build/game-activity.exe build/game-activity.exe"
+        "build": "rm -rf public && mkdir public && cd ../ui && rm -rf dist/ && yarn && yarn build && cp -r dist/* ../background/public && cd ../background && rm -rf build && yarn && tsc && set MAKE_JOB_COUNT=14 && pkg . && create-nodew-exe build/game-activity-win.exe build/game-activity-win.exe"
     },
     "author": "Kensa",
     "license": "ISC",
@@ -28,7 +28,8 @@
     "pkg": {
         "outputPath": "build",
         "targets": [
-            "node-latest-win-x64"
+            "node-latest-win-x64",
+            "node-latest-linux-x64"
         ],
         "assets": [
             "public/**/*",

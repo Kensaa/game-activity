@@ -43,39 +43,40 @@ const img = path.join(
     `clock.${platorm === 'win32' ? 'ico' : 'png'}`
 )
 
-const urlItem = {
-    title: 'Open Webpage',
-    tooltip: 'open the webpage to see your game activity',
-    checked: false,
-    enabled: true,
-    click: () => {
-        var url = `http://localhost:${PORT}`
-        var start =
-            process.platform == 'darwin'
-                ? 'open'
-                : process.platform == 'win32'
-                ? 'start'
-                : 'xdg-open'
-        require('child_process').exec(start + ' ' + url)
-    }
-}
-
-const exitItem = {
-    title: 'Exit',
-    tooltip: 'close the program',
-    checked: false,
-    enabled: true,
-    click: () => {
-        process.exit(0)
-    }
-}
-
 const systray = new SysTray({
     menu: {
         title: 'Game Activity',
         icon: img,
         tooltip: 'Game Activity',
-        items: [urlItem, exitItem]
+        items: [
+            {
+                title: 'Open Webpage',
+                tooltip: 'open the webpage to see your game activity',
+                checked: false,
+                enabled: true,
+                //@ts-ignore
+                click: () => {
+                    var url = `http://localhost:${PORT}`
+                    var start =
+                        process.platform == 'darwin'
+                            ? 'open'
+                            : process.platform == 'win32'
+                            ? 'start'
+                            : 'xdg-open'
+                    require('child_process').exec(start + ' ' + url)
+                }
+            },
+            {
+                title: 'Exit',
+                tooltip: 'close the program',
+                checked: false,
+                enabled: true,
+                //@ts-ignore
+                click: () => {
+                    process.exit(0)
+                }
+            }
+        ]
     },
     copyDir: true
 })
