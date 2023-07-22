@@ -21,3 +21,34 @@ export const convertSecondsToString = (originalTime: number): string => {
         .toString()
         .padStart(2, '0')}sec`
 }
+
+export const sortDays = (days: string[]): string[] => {
+    return [...days].sort((a, b) => {
+        let [day1, month1, year1] = a.split('/')
+        let [day2, month2, year2] = b.split('/')
+        if (year1 > year2) {
+            return 1
+        } else if (year2 > year1) {
+            return -1
+        } else {
+            if (month1 > month2) {
+                return 1
+            } else if (month2 > month1) {
+                return -1
+            } else {
+                if (day1 > day2) {
+                    return 1
+                } else if (day2 > day1) {
+                    return -1
+                } else {
+                    return 0
+                }
+            }
+        }
+    })
+}
+
+const a = ['02/01/2020', '01/01/2020', '01/02/2020', '08/08/1999']
+console.log(a)
+
+console.log(sortDays(a))

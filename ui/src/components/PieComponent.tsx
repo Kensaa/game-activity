@@ -3,6 +3,7 @@ import { Doughnut } from 'react-chartjs-2'
 import DoughnutLabel from 'chartjs-plugin-doughnutlabel-rebourne'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { colors, convertSecondsToString } from '../utils'
+import { Spinner } from 'react-bootstrap'
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export interface PieComponentProps {
@@ -10,13 +11,22 @@ export interface PieComponentProps {
 }
 
 export default function PieComponent({ data }: PieComponentProps) {
+    if (data === undefined) {
+        return (
+            <div className='h-100 d-flex justify-content-center align-items-center'>
+                <Spinner animation='border' />
+            </div>
+        )
+    }
+
     const pieData = useMemo(() => {
+        const days = Object.keys(data)
         return {
-            labels: Object.keys(data),
+            labels: days,
             datasets: [
                 {
                     label: 'test',
-                    data: Object.values(data),
+                    data: days.map(e => data[e]),
                     backgroundColor: colors
                 }
             ]
