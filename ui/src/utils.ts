@@ -57,8 +57,3 @@ export const sortDays = (days: string[]): string[] => {
         }
     })
 }
-
-const a = ['02/01/2020', '01/01/2020', '01/02/2020', '08/08/1999']
-console.log(a)
-
-console.log(sortDays(a))
