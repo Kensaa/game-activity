@@ -2,6 +2,7 @@ import { useState, createContext } from 'react'
 import Barpage from './pages/Barpage'
 import Piepage from './pages/Piepage'
 import { useInterval } from 'usehooks-ts'
+import Plotpage from './pages/Plotpage'
 
 export const dataContext = createContext<
     Record<string, Record<string, number>>
@@ -29,6 +30,7 @@ export default function App() {
             <div className='w-100 h-100'>
                 <Piepage />
                 <Barpage />
+                <Plotpage />
             </div>
         </dataContext.Provider>
     )

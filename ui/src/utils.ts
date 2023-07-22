@@ -1,4 +1,14 @@
 export const colors = [
+    '#e41a1c',
+    '#377eb8',
+    '#4daf4a',
+    '#984ea3',
+    '#ff7f00',
+    '#ffff33',
+    '#a65628',
+    '#f781bf',
+    '#999999'
+] /*[
     '#a50026',
     '#d73027',
     '#f46d43',
@@ -10,7 +20,7 @@ export const colors = [
     '#66bd63',
     '#1a9850',
     '#006837'
-]
+]*/
 
 export const convertSecondsToString = (originalTime: number): string => {
     let minutes = Math.floor(originalTime / 60)

@@ -12,6 +12,7 @@ import { Bar } from 'react-chartjs-2'
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 import { colors, convertSecondsToString } from '../utils'
 import { Spinner } from 'react-bootstrap'
+import { sortDays } from '../utils'
 
 export interface BarComponentProps {
     data: Record<string, Record<string, number>>
@@ -33,16 +34,15 @@ export default function BarComponent({
     const barData = useMemo(() => {
         let selectedDays: Record<string, Record<string, number>> = {}
         let i = 0
-        for (const day of Object.keys(data).reverse()) {
+        for (const day of sortDays(Object.keys(data).reverse())) {
             if (i >= dayCount) break
             selectedDays[day] = data[day]
             i++
         }
-
-        console.log(selectedDays)
+        const days = sortDays(Object.keys(selectedDays))
         const differentsGames: string[] = []
 
-        for (const day of Object.values(selectedDays)) {
+        for (const day of days.map(day => selectedDays[day])) {
             for (const name of Object.keys(day)) {
                 if (!differentsGames.includes(name)) {
                     differentsGames.push(name)
@@ -50,10 +50,10 @@ export default function BarComponent({
             }
         }
         return {
-            labels: Object.keys(selectedDays),
+            labels: days,
             datasets: differentsGames.map((game, i) => {
                 const datasetData: number[] = []
-                for (const day of Object.values(selectedDays)) {
+                for (const day of days.map(day => selectedDays[day])) {
                     if (Object.keys(day).includes(game)) {
                         datasetData.push(day[game])
                     } else {

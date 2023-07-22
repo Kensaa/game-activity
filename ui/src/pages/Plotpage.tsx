@@ -1,9 +1,9 @@
-import { useContext, useState } from 'react'
-import BarComponent from '../components/BarComponent'
-import { dataContext } from '../App'
+import { useState, useContext } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
+import { dataContext } from '../App'
+import PlotComponent from '../components/PlotComponent'
 
-export default function Barpage() {
+export default function Plotpage() {
     const [dayCount, setDayCount] = useState(7)
     const data = useContext(dataContext)
 
@@ -15,7 +15,6 @@ export default function Barpage() {
             </div>
         )
     }
-
     return (
         <div className='page'>
             <div className='content'>
@@ -34,7 +33,7 @@ export default function Barpage() {
                             min={1}
                         />
                     </Form.Group>
-                    <BarComponent data={data} dayCount={dayCount} />
+                    <PlotComponent data={data} dayCount={dayCount} />
                 </div>
             </div>
         </div>
