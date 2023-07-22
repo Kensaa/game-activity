@@ -6,6 +6,7 @@ import * as path from 'path'
 import * as express from 'express'
 import * as cors from 'cors'
 import SysTray from 'systray2'
+import { execSync } from 'child_process'
 const PORT = 49072
 
 const { width, height } = robotjs.getScreenSize()
@@ -63,7 +64,8 @@ const systray = new SysTray({
                             : process.platform == 'win32'
                             ? 'start'
                             : 'xdg-open'
-                    require('child_process').exec(start + ' ' + url)
+
+                    execSync(start + ' ' + url)
                 }
             },
             {
