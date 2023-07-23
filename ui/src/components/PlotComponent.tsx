@@ -10,7 +10,7 @@ import {
     Legend
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import { colors, sortDays } from '../utils'
+import { colors, convertSecondsToString, sortDays } from '../utils'
 
 ChartJS.register(
     CategoryScale,
@@ -70,5 +70,36 @@ export default function PlotComponent({
             })
         }
     }, [data])
-    return <Line data={plotData} />
+    return (
+        <Line
+            data={plotData}
+            options={{
+                scales: {
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            callback: value => {
+                                return convertSecondsToString(value as number)
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: item => {
+                                return item[0].dataset.label
+                            },
+                            label: item => {
+                                return convertSecondsToString(
+                                    item.raw as number
+                                )
+                            }
+                        }
+                    }
+                }
+            }}
+        />
+    )
 }
