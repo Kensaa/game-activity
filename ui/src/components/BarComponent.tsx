@@ -34,7 +34,7 @@ export default function BarComponent({
     const barData = useMemo(() => {
         let selectedDays: Record<string, Record<string, number>> = {}
         let i = 0
-        for (const day of sortDays(Object.keys(data).reverse())) {
+        for (const day of sortDays(Object.keys(data)).reverse()) {
             if (i >= dayCount) break
             selectedDays[day] = data[day]
             i++
