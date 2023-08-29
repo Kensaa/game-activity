@@ -1,13 +1,13 @@
-import { useState, useContext, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
 import PieComponent from '../components/PieComponent'
-import { dataContext } from '../App'
 import { sortDays } from '../utils'
+import dataStore from '../stores/data'
 
-export default function Piepage() {
+export default function Pie() {
     const [selectedFile, setSelectedFile] = useState(0)
     const [fileCount, setFileCount] = useState(0)
-    const data = useContext(dataContext)
+    const data = dataStore()
 
     useEffect(() => {
         const newCount = Object.keys(data).length

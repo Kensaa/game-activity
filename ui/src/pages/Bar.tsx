@@ -1,11 +1,11 @@
-import { useState, useContext } from 'react'
+import { useState } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
-import { dataContext } from '../App'
-import PlotComponent from '../components/PlotComponent'
+import dataStore from '../stores/data'
+import BarComponent from '../components/BarComponent'
 
-export default function Plotpage() {
-    const [dayCount, setDayCount] = useState(7)
-    const data = useContext(dataContext)
+export default function Bar() {
+    const data = dataStore()
+    const [numberOfDays, setNumberOfDays] = useState(7)
 
     if (Object.keys(data).length === 0) {
         return (
@@ -26,14 +26,14 @@ export default function Plotpage() {
                         <Form.Label>Number of displayed days : </Form.Label>
                         <Form.Control
                             type='number'
-                            value={dayCount}
+                            value={numberOfDays}
                             onChange={e =>
-                                setDayCount(parseInt(e.target.value))
+                                setNumberOfDays(parseInt(e.target.value))
                             }
                             min={1}
                         />
                     </Form.Group>
-                    <PlotComponent data={data} dayCount={dayCount} />
+                    <BarComponent data={data} dayCount={numberOfDays} />
                 </div>
             </div>
         </div>
