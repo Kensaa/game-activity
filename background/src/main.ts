@@ -7,7 +7,9 @@ import * as express from 'express'
 import * as cors from 'cors'
 import SysTray from 'systray2'
 import { execSync } from 'child_process'
+
 const PORT = 49072
+const MINIMAL_VALUE = 5 * 60 // MINIMAL VALUE REQUIRED TO BE DISPLAYED IN THE WEBPAGE
 
 const { width, height } = robotjs.getScreenSize()
 const platorm = os.platform()
@@ -101,13 +103,18 @@ app.listen(PORT, 'localhost', () => console.log(`listening on port ${PORT}`))
 
 app.get('/all', (req, res) => {
     const files = fs.readdirSync(folder)
-    const data: Record<string, Record<string, number>> = {}
+    const response: Record<string, Record<string, number>> = {}
     for (const file of files) {
-        data[path.parse(file).name] = JSON.parse(
+        const data = JSON.parse(
             fs.readFileSync(path.join(folder, file), 'utf-8')
-        )
+        ) as Record<string, number>
+        const selectedData: Record<string, number> = {}
+        for (const [key, value] of Object.entries(data)) {
+            if (value > MINIMAL_VALUE) selectedData[key] = value
+        }
+        response[path.parse(file).name] = selectedData
     }
-    res.json(data)
+    res.json(response)
 })
 
 const publicPath = path.join(__dirname, '..', 'public')
