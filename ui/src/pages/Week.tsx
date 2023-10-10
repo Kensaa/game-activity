@@ -18,15 +18,6 @@ export default function Week() {
     const data = dataStore()
     const [numberOfDays, setNumberOfDays] = useState(7)
 
-    if (Object.keys(data).length === 0) {
-        return (
-            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
-                Waiting for data...
-                <Spinner animation='border' />
-            </div>
-        )
-    }
-
     const barData = useMemo(() => {
         let selectedDays: Record<string, Record<string, number>> = {}
         let i = 0
@@ -64,7 +55,14 @@ export default function Week() {
             })
         }
     }, [data])
-
+    if (Object.keys(data).length === 0) {
+        return (
+            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
+                Waiting for data...
+                <Spinner animation='border' />
+            </div>
+        )
+    }
     return (
         <div className='page'>
             <div className='content'>

@@ -20,17 +20,10 @@ export default function SingleDay() {
         }
     }, [data])
 
-    if (Object.keys(data).length === 0) {
-        return (
-            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
-                Waiting for data...
-                <Spinner animation='border' />
-            </div>
-        )
-    }
-
     const pieData = useMemo(() => {
-        const selectedData = data[sortDays(Object.keys(data))[selectedFile]]
+        const sortedDays = sortDays(Object.keys(data))
+        if (sortedDays.length === 0) return { labels: [], datasets: [] }
+        const selectedData = data[sortedDays[selectedFile]]
         const days = Object.keys(selectedData)
         return {
             labels: days,
@@ -43,6 +36,15 @@ export default function SingleDay() {
             ]
         }
     }, [data, selectedFile])
+
+    if (Object.keys(data).length === 0) {
+        return (
+            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
+                Waiting for data...
+                <Spinner animation='border' />
+            </div>
+        )
+    }
 
     const text = () =>
         convertSecondsToString(

@@ -17,15 +17,6 @@ import { colors, convertSecondsToString } from '../utils'
 export default function TotalTime() {
     const data = dataStore()
 
-    if (Object.keys(data).length === 0) {
-        return (
-            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
-                Waiting for data...
-                <Spinner animation='border' />
-            </div>
-        )
-    }
-
     const barData = useMemo(() => {
         const games: Record<string, number> = {}
         for (const day of Object.values(data)) {
@@ -36,7 +27,6 @@ export default function TotalTime() {
                 games[game] += day[game]
             }
         }
-        console.log(games)
         const labels = Object.keys(games).sort((a, b) => games[b] - games[a])
         const values = labels.map(label => games[label])
 
@@ -51,6 +41,15 @@ export default function TotalTime() {
             ]
         }
     }, [data])
+
+    if (Object.keys(data).length === 0) {
+        return (
+            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
+                Waiting for data...
+                <Spinner animation='border' />
+            </div>
+        )
+    }
 
     return (
         <div className='page'>
