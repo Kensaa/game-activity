@@ -1,4 +1,6 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
+import { Form, Spinner } from 'react-bootstrap'
+import dataStore from '../stores/data'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -10,19 +12,51 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
-import { colors, convertSecondsToString } from '../utils'
-import { Spinner } from 'react-bootstrap'
-import { sortDays } from '../utils'
+import { colors, convertSecondsToString, sortDays } from '../utils'
+
+export default function Week() {
+    const data = dataStore()
+    const [numberOfDays, setNumberOfDays] = useState(7)
+
+    if (Object.keys(data).length === 0) {
+        return (
+            <div className='h-100 d-flex flex-column justify-content-center align-items-center'>
+                Waiting for data...
+                <Spinner animation='border' />
+            </div>
+        )
+    }
+    return (
+        <div className='page'>
+            <div className='content'>
+                <div
+                    style={{ width: '80%', height: '80%' }}
+                    className='d-flex flex-column align-items-center'
+                >
+                    <Form.Group>
+                        <Form.Label>Number of displayed days : </Form.Label>
+                        <Form.Control
+                            type='number'
+                            value={numberOfDays}
+                            onChange={e =>
+                                setNumberOfDays(parseInt(e.target.value))
+                            }
+                            min={1}
+                        />
+                    </Form.Group>
+                    <BarComponent data={data} dayCount={numberOfDays} />
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export interface BarComponentProps {
     data: Record<string, Record<string, number>>
     dayCount?: number
 }
 
-export default function BarComponent({
-    data,
-    dayCount = 7
-}: BarComponentProps) {
+function BarComponent({ data, dayCount = 7 }: BarComponentProps) {
     if (data === undefined) {
         return (
             <div className='h-100 d-flex justify-content-center align-items-center'>

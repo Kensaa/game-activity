@@ -1,11 +1,11 @@
-import Bar from './pages/Bar'
-import Pie from './pages/Pie'
+import Week from './pages/Week'
+import SingleDay from './pages/SingleDay'
 
 export default function App() {
     return (
         <div className='w-100 h-100'>
-            <Pie />
-            <Bar />
+            <SingleDay />
+            <Week />
         </div>
     )
 }
