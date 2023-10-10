@@ -26,50 +26,12 @@ export default function Week() {
             </div>
         )
     }
-    return (
-        <div className='page'>
-            <div className='content'>
-                <div
-                    style={{ width: '80%', height: '80%' }}
-                    className='d-flex flex-column align-items-center'
-                >
-                    <Form.Group>
-                        <Form.Label>Number of displayed days : </Form.Label>
-                        <Form.Control
-                            type='number'
-                            value={numberOfDays}
-                            onChange={e =>
-                                setNumberOfDays(parseInt(e.target.value))
-                            }
-                            min={1}
-                        />
-                    </Form.Group>
-                    <BarComponent data={data} dayCount={numberOfDays} />
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export interface BarComponentProps {
-    data: Record<string, Record<string, number>>
-    dayCount?: number
-}
-
-function BarComponent({ data, dayCount = 7 }: BarComponentProps) {
-    if (data === undefined) {
-        return (
-            <div className='h-100 d-flex justify-content-center align-items-center'>
-                <Spinner animation='border' />
-            </div>
-        )
-    }
 
     const barData = useMemo(() => {
         let selectedDays: Record<string, Record<string, number>> = {}
         let i = 0
         for (const day of sortDays(Object.keys(data)).reverse()) {
-            if (i >= dayCount) break
+            if (i >= numberOfDays) break
             selectedDays[day] = data[day]
             i++
         }
@@ -104,36 +66,58 @@ function BarComponent({ data, dayCount = 7 }: BarComponentProps) {
     }, [data])
 
     return (
-        <Bar
-            data={barData}
-            options={{
-                responsive: true,
-                scales: {
-                    x: { stacked: true },
-                    y: {
-                        stacked: true,
-                        ticks: {
-                            callback: value => {
-                                return convertSecondsToString(value as number)
+        <div className='page'>
+            <div className='content'>
+                <div
+                    style={{ width: '80%', height: '80%' }}
+                    className='d-flex flex-column align-items-center'
+                >
+                    <Form.Group>
+                        <Form.Label>Number of displayed days : </Form.Label>
+                        <Form.Control
+                            type='number'
+                            value={numberOfDays}
+                            onChange={e =>
+                                setNumberOfDays(parseInt(e.target.value))
                             }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            title: item => {
-                                return item[0].dataset.label
+                            min={1}
+                        />
+                    </Form.Group>
+                    <Bar
+                        data={barData}
+                        options={{
+                            responsive: true,
+                            scales: {
+                                x: { stacked: true },
+                                y: {
+                                    stacked: true,
+                                    ticks: {
+                                        callback: value => {
+                                            return convertSecondsToString(
+                                                value as number
+                                            )
+                                        }
+                                    }
+                                }
                             },
-                            label: item => {
-                                return convertSecondsToString(
-                                    item.raw as number
-                                )
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        title: item => {
+                                            return item[0].dataset.label
+                                        },
+                                        label: item => {
+                                            return convertSecondsToString(
+                                                item.raw as number
+                                            )
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    }
-                }
-            }}
-        />
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
     )
 }
