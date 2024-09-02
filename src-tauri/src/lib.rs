@@ -2,11 +2,12 @@
 
 use active_win_pos_rs;
 use dirs;
+use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use resolution;
 use std::{collections::HashMap, env, fs, path::PathBuf};
 
-type TimeRecord = HashMap<String, u64>;
+type TimeRecord = IndexMap<String, u64>;
 
 lazy_static! {
     pub static ref FOLDER: PathBuf = match env::consts::OS {
@@ -32,15 +33,13 @@ lazy_static! {
 }
 
 #[tauri::command]
-fn get_all_data() -> HashMap<String, TimeRecord> {
-    let mut data: HashMap<String, TimeRecord> = HashMap::new();
+fn get_all_data() -> IndexMap<String, TimeRecord> {
+    let mut data: IndexMap<String, TimeRecord> = IndexMap::new();
     for filepath in fs::read_dir((*FOLDER).clone()).expect("failed to read folder") {
         let filepath = filepath.expect("failed to get file path").path();
-        let mut filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
+        let filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
 
         let time_record = load_time_record(&filepath);
-        // remove .json extension
-        filename.truncate(filename.len() - 5);
         data.insert(filename, time_record);
     }
 
@@ -48,36 +47,32 @@ fn get_all_data() -> HashMap<String, TimeRecord> {
 }
 
 #[tauri::command]
-fn get_today_data() -> TimeRecord {
-    let date = chrono::Local::now().format("%d-%m-%Y").to_string();
-    let file = FOLDER.join(date + ".json");
-
-    let time_record = load_time_record(&file);
-
-    return time_record;
-}
-
-#[tauri::command]
-fn get_daterange_data(date1: &str, date2: &str) -> HashMap<String, TimeRecord> {
-    let mut data: HashMap<String, TimeRecord> = HashMap::new();
-    let date1 = chrono::NaiveDate::parse_from_str(date1, "%d-%m-%Y").unwrap();
-    let date2 = chrono::NaiveDate::parse_from_str(date2, "%d-%m-%Y").unwrap();
+fn get_daterange_data(start: &str, end: &str) -> IndexMap<String, TimeRecord> {
+    let mut data: IndexMap<String, TimeRecord> = IndexMap::new();
+    let start = chrono::NaiveDate::parse_from_str(start, "%d-%m-%Y").unwrap();
+    let end = chrono::NaiveDate::parse_from_str(end, "%d-%m-%Y").unwrap();
 
     for filepath in fs::read_dir((*FOLDER).clone()).expect("failed to read folder") {
         let filepath = filepath.expect("failed to get file path").path();
         let mut filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
         filename.truncate(filename.len() - 5);
         let date = chrono::NaiveDate::parse_from_str(&filename, "%d-%m-%Y").unwrap();
-        if date >= date1 && date <= date2 {
-            let mut filename = filename.to_string();
+        if date >= start && date <= end {
+            let filename = filename.to_string();
             let time_record = load_time_record(&filepath);
-            // remove .json extension
-            filename.truncate(filename.len() - 5);
             data.insert(filename, time_record);
         }
     }
 
     return data;
+}
+
+#[tauri::command]
+fn get_date_data(date: &str) -> TimeRecord {
+    let date = chrono::NaiveDate::parse_from_str(date, "%d-%m-%Y").unwrap();
+    let file = FOLDER.join(date.format("%d-%m-%Y").to_string() + ".json");
+    let time_record = load_time_record(&file);
+    return time_record;
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -90,7 +85,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_all_data,
-            get_today_data,
+            get_date_data,
             get_daterange_data
         ])
         .setup(|_| {
@@ -148,6 +143,6 @@ fn load_time_record(file: &PathBuf) -> TimeRecord {
     };
     match serde_json::from_str(&content) {
         Ok(time_record) => time_record,
-        Err(_) => HashMap::new(),
+        Err(_) => IndexMap::new(),
     }
 }

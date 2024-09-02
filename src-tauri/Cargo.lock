@@ -1001,6 +1001,7 @@ dependencies = [
  "active-win-pos-rs",
  "chrono",
  "dirs",
+ "indexmap 2.5.0",
  "lazy_static",
  "resolution",
  "serde",
