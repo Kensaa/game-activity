@@ -9,6 +9,8 @@ use std::{env, fs, path::PathBuf};
 
 type TimeRecord = IndexMap<String, u64>;
 
+const MINIMUM_TIME: u64 = 60 * 5;
+
 lazy_static! {
     pub static ref FOLDER: PathBuf = match env::consts::OS {
         "windows" => {
@@ -141,8 +143,16 @@ fn load_time_record(file: &PathBuf) -> TimeRecord {
         Ok(content) => content,
         Err(_) => "{}".to_string(),
     };
-    match serde_json::from_str(&content) {
+    let mut time_record: TimeRecord = match serde_json::from_str(&content) {
         Ok(time_record) => time_record,
         Err(_) => IndexMap::new(),
+    };
+
+    for (app_name, time) in time_record.clone().iter() {
+        if *time < MINIMUM_TIME {
+            time_record.swap_remove(app_name);
+        }
     }
+
+    return time_record;
 }
