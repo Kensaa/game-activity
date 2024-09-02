@@ -32,15 +32,49 @@ lazy_static! {
 }
 
 #[tauri::command]
-fn get_data() -> HashMap<String, TimeRecord> {
+fn get_all_data() -> HashMap<String, TimeRecord> {
     let mut data: HashMap<String, TimeRecord> = HashMap::new();
     for filepath in fs::read_dir((*FOLDER).clone()).expect("failed to read folder") {
         let filepath = filepath.expect("failed to get file path").path();
         let mut filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
+
+        let time_record = load_time_record(&filepath);
+        // remove .json extension
         filename.truncate(filename.len() - 5);
-        let content = fs::read_to_string(filepath).expect("failed to read file");
-        let time_record: TimeRecord = serde_json::from_str(&content).expect("failed to parse json");
         data.insert(filename, time_record);
+    }
+
+    return data;
+}
+
+#[tauri::command]
+fn get_today_data() -> TimeRecord {
+    let date = chrono::Local::now().format("%d-%m-%Y").to_string();
+    let file = FOLDER.join(date + ".json");
+
+    let time_record = load_time_record(&file);
+
+    return time_record;
+}
+
+#[tauri::command]
+fn get_daterange_data(date1: &str, date2: &str) -> HashMap<String, TimeRecord> {
+    let mut data: HashMap<String, TimeRecord> = HashMap::new();
+    let date1 = chrono::NaiveDate::parse_from_str(date1, "%d-%m-%Y").unwrap();
+    let date2 = chrono::NaiveDate::parse_from_str(date2, "%d-%m-%Y").unwrap();
+
+    for filepath in fs::read_dir((*FOLDER).clone()).expect("failed to read folder") {
+        let filepath = filepath.expect("failed to get file path").path();
+        let mut filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
+        filename.truncate(filename.len() - 5);
+        let date = chrono::NaiveDate::parse_from_str(&filename, "%d-%m-%Y").unwrap();
+        if date >= date1 && date <= date2 {
+            let mut filename = filename.to_string();
+            let time_record = load_time_record(&filepath);
+            // remove .json extension
+            filename.truncate(filename.len() - 5);
+            data.insert(filename, time_record);
+        }
     }
 
     return data;
@@ -54,7 +88,11 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![get_data])
+        .invoke_handler(tauri::generate_handler![
+            get_all_data,
+            get_today_data,
+            get_daterange_data
+        ])
         .setup(|_| {
             tauri::async_runtime::spawn(async {
                 loop {
@@ -73,10 +111,7 @@ fn update() {
 
     let active_window = match active_window {
         Ok(active_window) => active_window,
-        Err(_) => {
-            println!("failed to get active window");
-            return;
-        }
+        Err(_) => return,
     };
 
     // if app is not fullscreen, ignore
@@ -91,19 +126,7 @@ fn update() {
     let date = chrono::Local::now().format("%d-%m-%Y").to_string();
     let file = FOLDER.join(date + ".json");
 
-    let mut time_record: TimeRecord = if file.exists() {
-        let content = fs::read_to_string(&file);
-        let content = match content {
-            Ok(content) => content,
-            Err(_) => "{}".to_string(),
-        };
-        match serde_json::from_str(&content) {
-            Ok(time_record) => time_record,
-            Err(_) => HashMap::new(),
-        }
-    } else {
-        HashMap::new()
-    };
+    let mut time_record = load_time_record(&file);
 
     if time_record.contains_key(&app_name) {
         let time = time_record.get_mut(&app_name).unwrap();
@@ -115,4 +138,16 @@ fn update() {
     let content = serde_json::to_string(&time_record).unwrap();
 
     fs::write(&file, content).expect("failed to write to file");
+}
+
+fn load_time_record(file: &PathBuf) -> TimeRecord {
+    let content = fs::read_to_string(file);
+    let content = match content {
+        Ok(content) => content,
+        Err(_) => "{}".to_string(),
+    };
+    match serde_json::from_str(&content) {
+        Ok(time_record) => time_record,
+        Err(_) => HashMap::new(),
+    }
 }
