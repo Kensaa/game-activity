@@ -5,7 +5,7 @@ use dirs;
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use resolution;
-use std::{collections::HashMap, env, fs, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 type TimeRecord = IndexMap<String, u64>;
 
