@@ -57,8 +57,8 @@ export function get7DaysAgo() {
 }
 
 export const compareDates = (date1: string, date2: string): number => {
-    const [day1, month1, year1] = date1.split('/')
-    const [day2, month2, year2] = date2.split('/')
+    const [day1, month1, year1] = date1.split('-')
+    const [day2, month2, year2] = date2.split('-')
     if (year1 > year2) {
         return 1
     } else if (year2 > year1) {
