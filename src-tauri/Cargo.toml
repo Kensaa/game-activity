@@ -1,0 +1,31 @@
+[package]
+name = "game-activity"
+version = "0.1.0"
+description = "Game Activity"
+authors = ["Kensa"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "game_activity_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc", features = ["tray-icon"] }
+tauri-plugin-shell = "2.0.0-rc"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+active-win-pos-rs = "0.8.3"
+lazy_static = "1.5.0"
+dirs = "5.0.1"
+chrono = "0.4.38"
+resolution = "0.2.0"
+indexmap = {version = "2.5.0",features = ["serde"] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-autostart = "2.0.0-rc"
+tauri-plugin-single-instance = "2.0.0-rc"

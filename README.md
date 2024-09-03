@@ -10,3 +10,7 @@ To install it you just need to run the executable at startup
 ## Usage
 
 To open the webpage containing the graphs, click on the clock icon in the system tray and click "Open webpage"
+
+## Credit
+
+Watch icons created by Lyolya - Flaticon
