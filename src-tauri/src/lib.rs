@@ -6,6 +6,11 @@ use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use resolution;
 use std::{env, fs, path::PathBuf};
+use tauri::{
+    menu::{MenuBuilder, MenuItemBuilder},
+    tray::TrayIconBuilder,
+    Manager,
+};
 
 type TimeRecord = IndexMap<String, u64>;
 
@@ -79,6 +84,8 @@ fn get_date_data(date: &str) -> TimeRecord {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // create systray
+
     if !FOLDER.exists() {
         fs::create_dir_all(&*FOLDER).unwrap();
     }
@@ -90,7 +97,29 @@ pub fn run() {
             get_date_data,
             get_daterange_data
         ])
-        .setup(|_| {
+        .setup(|app| {
+            let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+            let show = MenuItemBuilder::with_id("show", "Show").build(app)?;
+
+            let menu = MenuBuilder::new(app).items(&[&show, &quit]).build()?;
+            let _ = TrayIconBuilder::new()
+                .menu(&menu)
+                .icon(app.default_window_icon().unwrap().clone())
+                .on_menu_event(move |app, event| match event.id().as_ref() {
+                    "quit" => {
+                        app.exit(0);
+                    }
+                    "show" => {
+                        let app = app.app_handle();
+                        if let Some(webview_window) = app.get_webview_window("main") {
+                            webview_window.show().expect("failed to show window");
+                            webview_window.set_focus().expect("failed to set focus");
+                        }
+                    }
+                    _ => (),
+                })
+                .build(app)?;
+
             tauri::async_runtime::spawn(async {
                 loop {
                     update();
@@ -98,6 +127,16 @@ pub fn run() {
                 }
             });
             Ok(())
+        })
+        .on_window_event(|app, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                // hide window
+                let app = app.app_handle();
+                if let Some(webview_window) = app.get_webview_window("main") {
+                    webview_window.hide().expect("failed to hide window");
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
