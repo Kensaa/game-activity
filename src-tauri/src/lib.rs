@@ -94,6 +94,13 @@ pub fn run() {
     }
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            let app = app.app_handle();
+            if let Some(webview_window) = app.get_webview_window("main") {
+                webview_window.show().expect("failed to show window");
+                webview_window.set_focus().expect("failed to set focus");
+            }
+        }))
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_all_data,
