@@ -46,7 +46,8 @@ fn get_all_data() -> IndexMap<String, TimeRecord> {
         let filepath = filepath.expect("failed to get file path").path();
         let filename = filepath.file_name().unwrap().to_str().unwrap().to_string();
 
-        let time_record = load_time_record(&filepath);
+        let mut time_record = load_time_record(&filepath);
+        filter_time_record(&mut time_record);
         data.insert(filename, time_record);
     }
 
@@ -66,7 +67,8 @@ fn get_daterange_data(start: &str, end: &str) -> IndexMap<String, TimeRecord> {
         let date = chrono::NaiveDate::parse_from_str(&filename, "%d-%m-%Y").unwrap();
         if date >= start && date <= end {
             let filename = filename.to_string();
-            let time_record = load_time_record(&filepath);
+            let mut time_record = load_time_record(&filepath);
+            filter_time_record(&mut time_record);
             data.insert(filename, time_record);
         }
     }
@@ -78,7 +80,8 @@ fn get_daterange_data(start: &str, end: &str) -> IndexMap<String, TimeRecord> {
 fn get_date_data(date: &str) -> TimeRecord {
     let date = chrono::NaiveDate::parse_from_str(date, "%d-%m-%Y").unwrap();
     let file = FOLDER.join(date.format("%d-%m-%Y").to_string() + ".json");
-    let time_record = load_time_record(&file);
+    let mut time_record = load_time_record(&file);
+    filter_time_record(&mut time_record);
     return time_record;
 }
 
@@ -182,16 +185,18 @@ fn load_time_record(file: &PathBuf) -> TimeRecord {
         Ok(content) => content,
         Err(_) => "{}".to_string(),
     };
-    let mut time_record: TimeRecord = match serde_json::from_str(&content) {
+    let time_record: TimeRecord = match serde_json::from_str(&content) {
         Ok(time_record) => time_record,
         Err(_) => IndexMap::new(),
     };
 
+    return time_record;
+}
+
+fn filter_time_record(time_record: &mut TimeRecord) {
     for (app_name, time) in time_record.clone().iter() {
         if *time < MINIMUM_TIME {
             time_record.swap_remove(app_name);
         }
     }
-
-    return time_record;
 }
