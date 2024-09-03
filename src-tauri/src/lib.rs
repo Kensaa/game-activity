@@ -124,7 +124,7 @@ pub fn run() {
             .build(app)?;
 
             let menu = MenuBuilder::new(app)
-                .items(&[&show, &quit, &autostart])
+                .items(&[&show, &autostart, &quit])
                 .build()?;
             let _ = TrayIconBuilder::new()
                 .menu(&menu)
