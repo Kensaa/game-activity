@@ -123,8 +123,13 @@ pub fn run() {
                 })
                 .on_tray_icon_event(|tray, event| {
                     let app = tray.app_handle();
-                    if let TrayIconEvent::Click { button_state, .. } = event {
-                        if button_state == MouseButtonState::Up {
+                    if let TrayIconEvent::Click {
+                        button,
+                        button_state,
+                        ..
+                    } = event
+                    {
+                        if button == MouseButton::Left && button_state == MouseButtonState::Up {
                             if let Some(webview_window) = app.get_webview_window("main") {
                                 let _ = webview_window.show();
                                 let _ = webview_window.set_focus();
