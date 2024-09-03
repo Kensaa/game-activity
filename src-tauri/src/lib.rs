@@ -11,6 +11,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
+use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 
 type TimeRecord = IndexMap<String, u64>;
 
@@ -94,6 +95,10 @@ pub fn run() {
     }
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             let app = app.app_handle();
             if let Some(webview_window) = app.get_webview_window("main") {
@@ -108,10 +113,19 @@ pub fn run() {
             get_daterange_data
         ])
         .setup(|app| {
+            let autostart_manager = app.autolaunch();
             let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
             let show = MenuItemBuilder::with_id("show", "Show").build(app)?;
+            let autostart = if autostart_manager.is_enabled().unwrap() {
+                MenuItemBuilder::with_id("autostart", "Disable Autostart")
+            } else {
+                MenuItemBuilder::with_id("autostart", "Enable Autostart")
+            }
+            .build(app)?;
 
-            let menu = MenuBuilder::new(app).items(&[&show, &quit]).build()?;
+            let menu = MenuBuilder::new(app)
+                .items(&[&show, &quit, &autostart])
+                .build()?;
             let _ = TrayIconBuilder::new()
                 .menu(&menu)
                 .icon(app.default_window_icon().unwrap().clone())
@@ -124,6 +138,29 @@ pub fn run() {
                         if let Some(webview_window) = app.get_webview_window("main") {
                             webview_window.show().expect("failed to show window");
                             webview_window.set_focus().expect("failed to set focus");
+                        }
+                    }
+                    "autostart" => {
+                        let autostart_manager = app.autolaunch();
+                        let state = autostart_manager
+                            .is_enabled()
+                            .expect("failed to get autostart status");
+                        if state {
+                            autostart_manager
+                                .disable()
+                                .expect("failed to disable autostart");
+
+                            autostart
+                                .set_text("Enable Autostart")
+                                .expect("failed to set autostart state");
+                        } else {
+                            autostart_manager
+                                .enable()
+                                .expect("failed to enable autostart");
+
+                            autostart
+                                .set_text("Disable Autostart")
+                                .expect("failed to set autostart state");
                         }
                     }
                     _ => (),

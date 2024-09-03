@@ -717,6 +717,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-autostart@npm:^2.0.0-rc":
+  version: 2.0.0-rc.1
+  resolution: "@tauri-apps/plugin-autostart@npm:2.0.0-rc.1"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0-rc.4"
+  checksum: 10c0/63e8c473b41eee186f66c46fe0785187250b8095576d682a8a2b0a29fe5bff5ec11968f6fb201f7990a0b742e71ca64b8185e661d86ea5aad63dfeed53db1386
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-shell@npm:>=2.0.0-rc.0":
   version: 2.0.0-rc.1
   resolution: "@tauri-apps/plugin-shell@npm:2.0.0-rc.1"
@@ -1311,6 +1320,7 @@ __metadata:
   dependencies:
     "@tauri-apps/api": "npm:>=2.0.0-rc.0"
     "@tauri-apps/cli": "npm:>=2.0.0-rc.0"
+    "@tauri-apps/plugin-autostart": "npm:^2.0.0-rc"
     "@tauri-apps/plugin-shell": "npm:>=2.0.0-rc.0"
     "@types/chartjs-plugin-doughnutlabel-rebourne": "npm:^3"
     "@types/react": "npm:^18.2.15"

@@ -27,4 +27,5 @@ resolution = "0.2.0"
 indexmap = {version = "2.5.0",features = ["serde"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-autostart = "2.0.0-rc"
 tauri-plugin-single-instance = "2.0.0-rc"
