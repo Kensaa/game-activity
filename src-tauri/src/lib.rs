@@ -8,7 +8,7 @@ use resolution;
 use std::{env, fs, path::PathBuf};
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
-    tray::TrayIconBuilder,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
 
@@ -120,6 +120,17 @@ pub fn run() {
                         }
                     }
                     _ => (),
+                })
+                .on_tray_icon_event(|tray, event| {
+                    let app = tray.app_handle();
+                    if let TrayIconEvent::Click { button_state, .. } = event {
+                        if button_state == MouseButtonState::Up {
+                            if let Some(webview_window) = app.get_webview_window("main") {
+                                let _ = webview_window.show();
+                                let _ = webview_window.set_focus();
+                            }
+                        }
+                    }
                 })
                 .build(app)?;
 
