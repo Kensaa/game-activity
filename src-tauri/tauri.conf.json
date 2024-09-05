@@ -1,6 +1,6 @@
 {
-    "productName": "game-activity",
-    "version": "2.0.0",
+    "productName": "Game Activity",
+    "version": "2.0.1",
     "identifier": "com.game-activity.app",
     "build": {
         "beforeDevCommand": "yarn dev",
@@ -11,7 +11,7 @@
     "app": {
         "windows": [
             {
-                "title": "game-activity",
+                "title": "Game Activity",
                 "width": 1280,
                 "height": 720,
                 "visible": false
