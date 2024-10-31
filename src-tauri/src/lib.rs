@@ -88,10 +88,27 @@ fn get_date_data(date: &str) -> TimeRecord {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // create systray
-
     if !FOLDER.exists() {
         fs::create_dir_all(&*FOLDER).unwrap();
+    }
+
+    // change all app names to be cleaned
+    for filepath in fs::read_dir((*FOLDER).clone()).expect("failed to read folder") {
+        let filepath = filepath.expect("failed to get file path").path();
+        let mut time_record = load_time_record(&filepath);
+        let mut changed = false;
+        for (app_name, time) in time_record.clone().into_iter() {
+            let cleaned_app_name = clean_string(&app_name);
+            if cleaned_app_name != app_name {
+                time_record.insert(cleaned_app_name, time);
+                time_record.swap_remove(&app_name);
+                changed = true;
+            }
+        }
+        if changed {
+            let content = serde_json::to_string(&time_record).unwrap();
+            fs::write(filepath, content).expect("failed to write to file");
+        }
     }
 
     tauri::Builder::default()
@@ -220,7 +237,7 @@ fn update() {
         return;
     }
 
-    let app_name = active_window.app_name;
+    let app_name = clean_string(&active_window.app_name);
 
     let date = chrono::Local::now().format("%d-%m-%Y").to_string();
     let file = FOLDER.join(date + ".json");
@@ -259,4 +276,11 @@ fn filter_time_record(time_record: &mut TimeRecord) {
             time_record.swap_remove(app_name);
         }
     }
+}
+
+fn clean_string(input: &str) -> String {
+    input
+        .chars()
+        .filter(|c| c.is_ascii_graphic() || c.is_whitespace())
+        .collect()
 }
