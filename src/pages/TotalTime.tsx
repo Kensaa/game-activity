@@ -11,12 +11,17 @@ import {
     Legend
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
+import { getCurrentWindow } from '@tauri-apps/api/window'
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default function TotalTime() {
     const [data, setData] = useState<Record<string, Record<string, number>>>({})
 
-    useInterval(() => {
+    useInterval(async () => {
+        if (!(await getCurrentWindow().isVisible())) {
+            return
+        }
         invoke('get_all_data').then(res => {
             setData(res as Record<string, Record<string, number>>)
         })
