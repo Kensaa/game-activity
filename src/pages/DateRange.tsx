@@ -22,6 +22,8 @@ import {
     colors
 } from '../utils'
 import { invoke } from '@tauri-apps/api/core'
+import { getCurrentWindow } from '@tauri-apps/api/window'
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 type ValuePiece = Date | null
@@ -32,9 +34,12 @@ export default function DateRange() {
     const [dates, setDates] = useState<Value>([get7DaysAgo(), new Date()])
     const [data, setData] = useState<Record<string, Record<string, number>>>({})
 
-    useInterval(() => {
+    useInterval(async () => {
         if (!dates || !Array.isArray(dates) || !dates[0] || !dates[1]) {
             setData({})
+            return
+        }
+        if (!(await getCurrentWindow().isVisible())) {
             return
         }
         let start = dateToString(dates[0] as Date)

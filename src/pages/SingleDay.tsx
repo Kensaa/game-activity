@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import DatePicker from 'react-date-picker'
 import { invoke } from '@tauri-apps/api/core'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import 'react-date-picker/dist/DatePicker.css'
 import 'react-calendar/dist/Calendar.css'
 import {
@@ -20,9 +21,12 @@ type Value = ValuePiece | [ValuePiece, ValuePiece]
 export default function SingleDay() {
     const [date, setDate] = useState<Value>(new Date())
     const [data, setData] = useState<Record<string, number>>({})
-    useInterval(() => {
+    useInterval(async () => {
         if (!date) {
             setData({})
+            return
+        }
+        if (!(await getCurrentWindow().isVisible())) {
             return
         }
         let dateString = dateToString(date as Date)
