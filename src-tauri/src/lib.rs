@@ -1,11 +1,16 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
 use active_win_pos_rs;
+use chrono::{DateTime, Local};
 use dirs;
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use resolution;
-use std::{env, fs, path::PathBuf};
+use std::{
+    env,
+    fs::{self},
+    path::PathBuf,
+};
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -112,10 +117,7 @@ pub fn run() {
     }
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,
-            None,
-        ))
+        // .plugin(tauri_plugin_single_instance::init())
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             let app = app.app_handle();
             if let Some(webview_window) = app.get_webview_window("main") {
@@ -123,6 +125,10 @@ pub fn run() {
                 webview_window.set_focus().expect("failed to set focus");
             }
         }))
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_all_data,
@@ -201,10 +207,7 @@ pub fn run() {
                 .build(app)?;
 
             tauri::async_runtime::spawn(async {
-                loop {
-                    update();
-                    std::thread::sleep(std::time::Duration::from_secs(1));
-                }
+                update_loop();
             });
             Ok(())
         })
@@ -222,38 +225,46 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn update() {
-    let active_window = active_win_pos_rs::get_active_window();
+fn date_to_filename(date: DateTime<Local>) -> PathBuf {
+    FOLDER.join(format!("{}.json", date.format("%d-%m-%Y")))
+}
 
-    let active_window = match active_window {
-        Ok(active_window) => active_window,
-        Err(_) => return,
-    };
+fn update_loop() {
+    let mut prev_time = Local::now();
+    let mut time_record = load_time_record(&date_to_filename(prev_time));
 
-    // if app is not fullscreen, ignore
-    let width = active_window.position.width as i32;
-    let height = active_window.position.height as i32;
-    if width != (*RESOLUTION).0 || height != (*RESOLUTION).1 {
-        return;
+    loop {
+        let active_window = active_win_pos_rs::get_active_window();
+
+        if let Ok(active_window) = active_window {
+            // if app is not fullscreen, ignore
+            let width = active_window.position.width as i32;
+            let height = active_window.position.height as i32;
+            if width == (*RESOLUTION).0 && height == (*RESOLUTION).1 {
+                let curr_time = Local::now();
+                if curr_time.format("%d").to_string() != prev_time.format("%d").to_string() {
+                    // day changed between last update and current one => reload time record
+                    time_record = load_time_record(&date_to_filename(curr_time));
+                }
+
+                let app_name = clean_string(&active_window.app_name);
+
+                // let date = Local::now().format("%d-%m-%Y").to_string();
+                // let file = FOLDER.join(date + ".json");
+
+                // let mut time_record = load_time_record(&file);
+
+                *time_record.entry(app_name).or_insert(0) += 1;
+
+                let content = serde_json::to_string(&time_record).unwrap();
+
+                fs::write(&date_to_filename(curr_time), content).expect("failed to write to file");
+
+                prev_time = curr_time;
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
-
-    let app_name = clean_string(&active_window.app_name);
-
-    let date = chrono::Local::now().format("%d-%m-%Y").to_string();
-    let file = FOLDER.join(date + ".json");
-
-    let mut time_record = load_time_record(&file);
-
-    if time_record.contains_key(&app_name) {
-        let time = time_record.get_mut(&app_name).unwrap();
-        *time += 1;
-    } else {
-        time_record.insert(app_name, 1);
-    }
-
-    let content = serde_json::to_string(&time_record).unwrap();
-
-    fs::write(&file, content).expect("failed to write to file");
 }
 
 fn load_time_record(file: &PathBuf) -> TimeRecord {
